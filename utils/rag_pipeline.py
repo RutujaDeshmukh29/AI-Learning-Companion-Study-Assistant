@@ -98,20 +98,22 @@ def query_rag(
     top_k: int = 5,
     learning_mode: str = "Beginner",
     chat_history: Optional[List[Dict]] = None,
-    source_filter: str = None,
+    source_filters: Optional[List[str]] = None,
     username: str = None,
+    expand_beyond_docs: bool = True,
 ) -> Tuple[str, List[str]]:
     """
     Retrieve relevant chunks and generate an LLM answer for a question.
     Does NOT touch the PDF or regenerate embeddings.
 
     Args:
-        question:      The user's question.
-        top_k:         Number of chunks to retrieve from ChromaDB.
-        learning_mode: Teaching style (Beginner/Exam/Practical/Interview).
-        chat_history:  Previous turns for conversational context.
-        source_filter: Limit retrieval to one specific PDF (by name).
-        username:      For personalised prompt greeting.
+        question:             The user's question.
+        top_k:                Number of chunks to retrieve from ChromaDB.
+        learning_mode:        Teaching style (Beginner/Exam/Practical/Interview).
+        chat_history:         Previous turns for conversational context.
+        source_filters:       Limit retrieval to a list of specific PDFs.
+        username:             For personalised prompt greeting.
+        expand_beyond_docs:   Whether to allow the LLM to add its own knowledge.
 
     Returns:
         (answer_str, [retrieved_chunk_texts])
@@ -131,7 +133,7 @@ def query_rag(
         results         = search_similar_chunks(
             query_embedding,
             top_k=top_k,
-            source_filter=source_filter,
+            source_filters=source_filters,
         )
         retrieved_chunks = results.get("documents", [[]])[0]
 
@@ -152,6 +154,7 @@ def query_rag(
             learning_mode=learning_mode,
             chat_history=chat_history,
             username=username,
+            expand_beyond_docs=expand_beyond_docs,
         )
 
         # Step 5: Generate answer
@@ -195,4 +198,4 @@ def run_rag_pipeline(pdf_path: str, question: str) -> Tuple[str, List[str]]:
         if not result["success"]:
             return f"❌ Indexing failed: {result['error']}", []
 
-    return query_rag(question, source_filter=source_name)
+    return query_rag(question, source_filters=[source_name])

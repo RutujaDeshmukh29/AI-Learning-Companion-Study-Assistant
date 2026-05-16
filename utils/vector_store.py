@@ -107,7 +107,7 @@ def store_embeddings(
 def search_similar_chunks(
     query_embedding,                  # numpy 1-D array or plain list
     top_k: int = 5,
-    source_filter: str = None,
+    source_filters: Optional[List[str]] = None,
 ) -> dict:
     """
     Retrieve the most semantically similar chunks for a query embedding.
@@ -116,7 +116,7 @@ def search_similar_chunks(
         {"documents": [[chunk1, chunk2, ...]], "metadatas": [[...]], ...}
     so existing code (test_rag.py, rag_pipeline.py) still works unchanged.
 
-    New: source_filter lets you limit retrieval to one PDF.
+    New: source_filters lets you limit retrieval to a list of PDFs.
     New: metadatas[0] now contains {"source": "...", "chunk_index": N}.
     """
     collection = _get_collection()
@@ -132,8 +132,11 @@ def search_similar_chunks(
         n_results=min(top_k, total),
         include=["documents", "metadatas", "distances"],
     )
-    if source_filter:
-        kwargs["where"] = {"source": source_filter}
+    if source_filters:
+        if len(source_filters) == 1:
+            kwargs["where"] = {"source": source_filters[0]}
+        else:
+            kwargs["where"] = {"source": {"$in": source_filters}}
 
     return collection.query(**kwargs)
 
@@ -160,7 +163,7 @@ def store_chunks(
 def retrieve_relevant_chunks(
     query: str,
     n_results: int = 5,
-    source_filter: str = None,
+    source_filters: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
     High-level retrieval: accepts a raw query string, returns rich dicts.
@@ -171,7 +174,7 @@ def retrieve_relevant_chunks(
     """
     from utils.embeddings import create_embeddings
     qe      = create_embeddings([query])[0]
-    results = search_similar_chunks(qe, top_k=n_results, source_filter=source_filter)
+    results = search_similar_chunks(qe, top_k=n_results, source_filters=source_filters)
 
     retrieved = []
     docs  = results.get("documents", [[]])[0]
