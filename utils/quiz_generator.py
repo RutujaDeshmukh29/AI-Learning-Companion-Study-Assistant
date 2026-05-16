@@ -4,7 +4,7 @@ Generates MCQs, interview questions, and practice quizzes using Gemini
 """
 
 from typing import List, Dict, Any
-from utils.gemini_api import generate_response
+from utils.llm import ask_llm
 from utils.prompts import build_quiz_prompt
 import re
 
@@ -21,7 +21,7 @@ def generate_mcqs(text: str, num_questions: int = 5) -> str:
         Formatted MCQ string
     """
     prompt = build_quiz_prompt(text, quiz_type="mcq", num_questions=num_questions)
-    response = generate_response(prompt)
+    response = ask_llm(prompt)
     return response
 
 
@@ -37,7 +37,7 @@ def generate_interview_questions(text: str, num_questions: int = 5) -> str:
         Formatted interview questions string
     """
     prompt = build_quiz_prompt(text, quiz_type="interview", num_questions=num_questions)
-    response = generate_response(prompt)
+    response = ask_llm(prompt)
     return response
 
 
@@ -53,7 +53,7 @@ def generate_short_answer_questions(text: str, num_questions: int = 5) -> str:
         Formatted short answer questions string
     """
     prompt = build_quiz_prompt(text, quiz_type="short", num_questions=num_questions)
-    response = generate_response(prompt)
+    response = ask_llm(prompt)
     return response
 
 

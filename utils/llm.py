@@ -12,7 +12,7 @@ api_key = os.getenv("GROQ_API_KEY")
 client = Groq(api_key=api_key)
 
 
-def ask_gemini(prompt):
+def ask_llm(prompt):
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",

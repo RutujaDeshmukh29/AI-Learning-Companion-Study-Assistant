@@ -1,167 +1,89 @@
 import streamlit as st
 import os
+from utils.rag_pipeline import run_rag_pipeline
 
-from utils.pdf_loader import extract_text_from_pdf
-from utils.text_splitter import split_text
-from utils.embeddings import generate_embeddings
-from utils.vector_store import (
-    store_embeddings,
-    search_similar_chunks
-)
-from utils.gemini_api import ask_gemini
-from utils.prompts import build_rag_prompt
+# --- Constants ---
+PDF_UPLOADS_DIR = "data/uploaded_pdfs"
 
-# -----------------------------
-# Streamlit Page Config
-# -----------------------------
-
+# --- Streamlit Page Config ---
 st.set_page_config(
     page_title="AI Learning Companion",
     page_icon="📘",
     layout="wide"
 )
 
-# -----------------------------
-# App Title
-# -----------------------------
-
+# --- App Title ---
 st.title("📘 AI Learning Companion")
+st.write("Your personal AI-powered study assistant.")
 
-st.write(
-    "Upload your study PDF and ask questions using AI-powered RAG."
-)
+# --- Session State Initialization ---
+def initialize_session_state():
+    """Initialize session state variables if they don't exist."""
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{"role": "assistant", "content": "How can I help you?"}]
+    if "pdf_path" not in st.session_state:
+        st.session_state.pdf_path = None
+    if "pdf_processed" not in st.session_state:
+        st.session_state.pdf_processed = False
 
-# -----------------------------
-# PDF Upload
-# -----------------------------
+initialize_session_state()
 
-uploaded_file = st.file_uploader(
-    "Upload PDF",
-    type=["pdf"]
-)
-
-# -----------------------------
-# Process PDF
-# -----------------------------
-
-if uploaded_file is not None:
-
-    # Create upload folder if not exists
-    os.makedirs("data/uploaded_pdfs", exist_ok=True)
-
-    # Save uploaded PDF
-    pdf_path = os.path.join(
-        "data/uploaded_pdfs",
-        uploaded_file.name
-    )
-
+# --- Helper Functions ---
+def process_pdf(uploaded_file):
+    """Process the uploaded PDF file."""
+    os.makedirs(PDF_UPLOADS_DIR, exist_ok=True)
+    pdf_path = os.path.join(PDF_UPLOADS_DIR, uploaded_file.name)
+    
     with open(pdf_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
+    
+    st.session_state.pdf_path = pdf_path
+    st.session_state.pdf_processed = True
+    st.success("PDF uploaded and processed successfully!")
 
-    st.success("PDF uploaded successfully!")
+def new_chat():
+    """Reset the chat history."""
+    st.session_state.messages = [{"role": "assistant", "content": "How can I help you?"}]
 
-    # -----------------------------
-    # Extract Text
-    # -----------------------------
 
-    with st.spinner("Extracting text from PDF..."):
+# --- Sidebar ---
+with st.sidebar:
+    st.header("Upload PDF")
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+    
+    if uploaded_file:
+        if st.session_state.pdf_path != os.path.join(PDF_UPLOADS_DIR, uploaded_file.name):
+            process_pdf(uploaded_file)
+            
+    if st.button("New Chat"):
+        new_chat()
 
-        text = extract_text_from_pdf(pdf_path)
+# --- Chat History Display ---
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-    st.success("Text extracted successfully!")
+# --- Chat Input and Main Logic ---
+if prompt := st.chat_input("Ask a question about your PDF..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    # -----------------------------
-    # Chunk Text
-    # -----------------------------
+    if not st.session_state.pdf_processed:
+        with st.chat_message("assistant"):
+            st.warning("Please upload a PDF file first.")
+        st.stop()
 
-    with st.spinner("Splitting text into chunks..."):
-
-        chunks = split_text(text)
-
-    st.write(f"Total Chunks Created: {len(chunks)}")
-
-    # -----------------------------
-    # Generate Embeddings
-    # -----------------------------
-
-    with st.spinner("Generating embeddings..."):
-
-        embeddings = generate_embeddings(chunks)
-
-    st.success("Embeddings generated!")
-
-    # -----------------------------
-    # Store in ChromaDB
-    # -----------------------------
-
-    with st.spinner("Storing embeddings in ChromaDB..."):
-
-        store_embeddings(chunks, embeddings)
-
-    st.success("Embeddings stored successfully!")
-
-    st.divider()
-
-    # -----------------------------
-    # User Question
-    # -----------------------------
-
-    user_question = st.text_input(
-        "Ask a question from your PDF:"
-    )
-
-    # -----------------------------
-    # Generate Answer
-    # -----------------------------
-
-    if st.button("Get Answer"):
-
-        if user_question:
-
-            with st.spinner("Searching relevant context..."):
-
-                # Generate query embedding
-                query_embedding = generate_embeddings(
-                    [user_question]
-                )[0]
-
-                # Retrieve similar chunks
-                results = search_similar_chunks(
-                    query_embedding
-                )
-
-                retrieved_chunks = results["documents"][0]
-
-                # Combine retrieved chunks
-                context = "\n\n".join(retrieved_chunks)
-
-            with st.spinner("Generating AI response..."):
-
-                # Build RAG prompt
-                prompt = build_rag_prompt(
-                    context,
-                    user_question
-                )
-
-                # Generate response
-                response = ask_gemini(prompt)
-
-            # -----------------------------
-            # Display Response
-            # -----------------------------
-
-            st.subheader("AI Response")
-
-            st.write(response)
-
-            # -----------------------------
-            # Optional Debug Section
-            # -----------------------------
-
-            with st.expander("View Retrieved Context"):
-
-                st.write(context)
-
-        else:
-
-            st.warning("Please enter a question.")
+    with st.spinner("Thinking..."):
+        answer, retrieved_chunks = run_rag_pipeline(st.session_state.pdf_path, prompt)
+        
+    with st.chat_message("assistant"):
+        st.markdown(answer)
+        st.session_state.messages.append({"role": "assistant", "content": answer})
+        with st.expander("View Retrieved Context"):
+            for i, chunk in enumerate(retrieved_chunks):
+                st.markdown(f"""
+> **Chunk {i+1}**
+---
+{chunk}
+""")
