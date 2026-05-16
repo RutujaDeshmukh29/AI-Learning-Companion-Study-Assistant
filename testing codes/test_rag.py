@@ -1,47 +1,21 @@
-from utils.pdf_loader import extract_text_from_pdf
-from utils.text_splitter import split_text
-from utils.embeddings import generate_embeddings
-from utils.vector_store import (
-    store_embeddings,
-    search_similar_chunks
-)
-from utils.gemini_api import ask_gemini
-from utils.prompts import build_rag_prompt
+"""Integration test: full RAG pipeline"""
+from utils.rag_pipeline import run_rag_pipeline
+import os
 
-# PDF path
-pdf_path = "data/uploaded_pdfs/python_notes.pdf"
+PDF_PATH = "data/uploaded_pdfs/python_notes.pdf"
 
-# Extract text
-text = extract_text_from_pdf(pdf_path)
+def test_rag_pipeline():
+    if not os.path.exists(PDF_PATH):
+        print(f"\nSkipped: {PDF_PATH} not found.")
+        return
+    answer, chunks = run_rag_pipeline(PDF_PATH, "What is Python?")
+    assert isinstance(answer, str)
+    assert len(answer) > 10
+    print(f"\nAnswer:\n{answer}\n")
+    print(f"Retrieved {len(chunks)} chunks")
 
-# Split into chunks
-chunks = split_text(text)
-
-# Generate embeddings
-embeddings = generate_embeddings(chunks)
-
-# Store embeddings
-store_embeddings(chunks, embeddings)
-
-# User question
-question = "what is the primary purpose of marketing techniques.?"
-
-# Generate query embedding
-query_embedding = generate_embeddings([question])[0]
-
-# Retrieve relevant chunks
-results = search_similar_chunks(query_embedding)
-
-retrieved_chunks = results["documents"][0]
-
-# Combine retrieved chunks
-context = "\n\n".join(retrieved_chunks)
-
-# Build RAG prompt
-prompt = build_rag_prompt(context, question)
-
-# Generate AI response
-response = ask_gemini(prompt)
-
-print("\nAI Response:\n")
-print(response)
+def test_rag_no_pdf():
+    """Should return graceful error, not crash."""
+    answer, chunks = run_rag_pipeline("data/nonexistent.pdf", "test question")
+    assert "❌" in answer or "not found" in answer.lower()
+    print(f"\nGraceful error: {answer}")

@@ -1,37 +1,26 @@
-from utils.pdf_loader import extract_text_from_pdf
+"""Test ChromaDB storage and retrieval"""
 from utils.text_splitter import split_text
 from utils.embeddings import generate_embeddings
-from utils.vector_store import (
-    store_embeddings,
-    search_similar_chunks
-)
+from utils.vector_store import store_embeddings, search_similar_chunks, get_collection_stats
 
-# PDF path
-pdf_path = "data/uploaded_pdfs/python_notes.pdf"
+SAMPLE = "Python is a high-level programming language. " * 30
 
-# Extract text
-text = extract_text_from_pdf(pdf_path)
+def test_store_and_search():
+    chunks     = split_text(SAMPLE)
+    embeddings = generate_embeddings(chunks)
 
-# Split text
-chunks = split_text(text)
+    stored = store_embeddings(chunks, embeddings, source_name="test_doc.pdf")
+    assert stored == len(chunks), "All chunks should be stored"
 
-# Generate embeddings
-embeddings = generate_embeddings(chunks)
+    query_emb = generate_embeddings(["What is Python?"])[0]
+    results   = search_similar_chunks(query_emb, top_k=3)
 
-# Store embeddings
-store_embeddings(chunks, embeddings)
+    assert "documents" in results
+    assert len(results["documents"][0]) > 0
+    print(f"\nStored: {stored} chunks")
+    print("Top result:", results["documents"][0][0][:200])
 
-# User query
-query = "What is Python?"
-
-# Generate query embedding
-query_embedding = generate_embeddings([query])[0]
-
-# Search similar chunks
-results = search_similar_chunks(query_embedding)
-
-print("\nRetrieved Chunks:\n")
-
-for doc in results["documents"][0]:
-    print(doc)
-    print("\n-------------------\n")
+def test_stats():
+    stats = get_collection_stats()
+    assert "total_chunks" in stats
+    print(f"\nStats: {stats}")

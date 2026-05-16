@@ -1,5 +1,18 @@
-venv/
+# Environment
 .env
+venv/
 __pycache__/
+*.pyc
+*.pyo
+
+# Data (don't commit user PDFs or DB)
+data/uploaded_pdfs/
+data/users.db
 chroma_db/
-*.pycgit add .
+
+# Screenshots placeholder
+screenshots/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
