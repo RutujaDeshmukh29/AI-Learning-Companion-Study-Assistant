@@ -376,7 +376,7 @@ with t_chat:
         """, unsafe_allow_html=True)
 
         # Chat history
-        chat_box = st.container(height=400)
+        chat_box = st.container(height=700)
         with chat_box:
             if not st.session_state.messages:
                 st.markdown("""
@@ -730,7 +730,7 @@ with t_diagram:
         with diag_render:
             st.markdown("**Rendered Diagram**")
             html_out = mermaid_to_html(st.session_state.diagram_code)
-            components.html(html_out, height=700, scrolling=True)
+            components.html(html_out, height=600, scrolling=False)
             st.caption("🖱️ Drag to pan, use your mouse wheel to zoom.")
 
         with diag_code:

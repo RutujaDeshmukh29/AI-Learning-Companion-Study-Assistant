@@ -223,11 +223,9 @@ def mermaid_to_html(mermaid_code: str) -> str:
   }}}});
 
   function setupPanzoomAndDownload() {{{{
-    alert('setupPanzoomAndDownload called');
     const container = document.getElementById('mermaid-container');
     const svgElement = container.querySelector('svg');
     if (svgElement) {{{{
-      alert('svgElement found');
       svgElement.style.width = '100%';
       svgElement.style.height = '100%';
 
@@ -313,8 +311,6 @@ def mermaid_to_html(mermaid_code: str) -> str:
         }}}};
         img.src = svgUrl;
       }}}});
-    }}}} else {{{{
-      alert('svgElement not found');
     }}}}
   }}
 
