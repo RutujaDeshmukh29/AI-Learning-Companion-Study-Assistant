@@ -1,2 +1,1 @@
-assets/Demo[[:space:]]Video/*.mp4 filter=lfs diff=lfs merge=lfs -text
 assets/Demo[[:space:]]Video/AI[[:space:]]Learning[[:space:]]Companion[[:space:]]version[[:space:]]1[[:space:]]demo[[:space:]]video[[:space:]].mp4 filter=lfs diff=lfs merge=lfs -text
