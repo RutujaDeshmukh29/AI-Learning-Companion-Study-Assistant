@@ -114,13 +114,17 @@ ai-learning-companion/
 │   └── users.db                # SQLite: users, sessions, history (gitignored)
 │
 └── tests/
-    ├── test_pdf.py
-    ├── test_splitter.py
-    ├── test_embeddings.py
-    ├── test_vector_store.py
-    ├── test_rag.py
-    └── test_llm.py
+    └── tests/
+        ├── test_pdf.py
+        ├── test_splitter.py
+        ├── test_embeddings.py
+        ├── test_vector_store.py
+        ├── test_rag.py
+        └── test_llm.py
 ```
+---
+
+For screenshots and a demo video, please check the [assets folder](./assets).
 
 ---
 
@@ -128,7 +132,7 @@ ai-learning-companion/
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourusername/ai-learning-companion.git
+git clone https://github.com/RutujaDeshmukh29/AI-Learning-Companion-Study-Assistant.git
 cd ai-learning-companion
 
 # 2. Virtual environment
