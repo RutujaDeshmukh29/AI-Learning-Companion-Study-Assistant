@@ -257,6 +257,14 @@ Uses browser-native Web Speech API (Chrome/Edge):
 
 ---
 
+### 🔗 Live Demo & Contact
+
+Experience the AI Learning Companion live: **[https://ai-learning-companion-study-assistanti.streamlit.app/](https://ai-learning-companion-study-assistanti.streamlit.app/)**
+
+For inquiries, please contact: **deshmukhrutuja2808@gmail.com**
+
+---
+
 *Built as a portfolio-quality AI engineering project. Demonstrates: RAG architecture, vector search, multi-modal AI, production auth, analytics, and modern UI/UX.*
 
 ---
