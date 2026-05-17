@@ -261,7 +261,7 @@ Uses browser-native Web Speech API (Chrome/Edge):
 
 Experience the AI Learning Companion live: **[https://ai-learning-companion-study-assistanti.streamlit.app/](https://ai-learning-companion-study-assistanti.streamlit.app/)**
 
-For inquiries, please contact: **deshmukhrutuja2808@gmail.com**
+For inquiries, please contact: **deshmukhrutuja2908@gmail.com**
 
 ---
 
