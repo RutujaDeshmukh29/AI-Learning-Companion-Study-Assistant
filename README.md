@@ -28,6 +28,9 @@ Upload any PDF (lecture notes, textbooks, research papers) and unlock:
 | 🔊 **Voice Assistant** | Use your voice to ask questions and hear the AI's answers. | This feature is built using your browser's native speech capabilities, which means it's free to use and doesn't rely on paid external services. |
 | 🎓 **6 Learning Modes** | Tailor the AI's personality and response style to your needs. | You can switch between modes like "Beginner" for simple explanations, "Exam" for revision, or "Practical" for coding help. |
 | 🔐 **Authentication** | Securely sign up and log in to the application. | Each user has their own account, and all uploaded documents and chat histories are kept private and isolated. |
+| 🏆 **Coding Challenges** | Generates coding problems based on study material or a specified topic. | Helps reinforce learning with practical application, tailored difficulty and language. |
+| 🚀 **Project Recommendations** | Suggests relevant project ideas based on the content of your documents. | Connects theoretical knowledge to real-world application, fostering deeper understanding. |
+| 🎯 **Weak Topic Analysis** | Identifies areas where you might need more study based on your chat questions. | Provides personalized feedback to focus your learning efforts efficiently. |
 
 ### Key Technical Uniqueness
 
